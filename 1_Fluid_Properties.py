@@ -61,7 +61,7 @@ if 'active_page' not in st.session_state:
 
 # Refrigerant selection
 fluid = col1.selectbox(
-    'Refrigerant Fluid',
+    'Fluid',
     [
         "1-Butene", "Acetone", "Air", "Ammonia", "Argon", "Benzene", "CH4", "CO", "CO2",
         "CycloHexane", "CycloPropane", "Cyclopentane", "H2", "H2O", "R134a", "R410A", "n-Butane"
