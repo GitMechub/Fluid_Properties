@@ -63,8 +63,23 @@ if 'active_page' not in st.session_state:
 fluid = col1.selectbox(
     'Fluid',
     [
-        "1-Butene", "Acetone", "Air", "Ammonia", "Argon", "Benzene", "CH4", "CO", "CO2",
-        "CycloHexane", "CycloPropane", "Cyclopentane", "H2", "H2O", "R134a", "R410A", "n-Butane"
+    "1-Butene", "Acetone", "Air", "Ammonia", "Argon", "Benzene", "CH4", "CO", "CO2",
+    "CarbonylSulfide", "CycloHexane", "CycloPropane", "Cyclopentane", "D4", "D5", "D6",
+    "Deuterium", "Dichloroethane", "DiethylEther", "DimethylCarbonate", "DimethylEther",
+    "Ethane", "Ethanol", "EthylBenzene", "Ethylene", "EthyleneOxide", "Fluorine",
+    "H2", "H2O", "HFE143m", "HeavyWater", "Helium", "HydrogenChloride", "HydrogenSulfide",
+    "IsoButane", "IsoButene", "Isohexane", "Isopentane", "Krypton", "MD2M", "MD3M", "MD4M",
+    "MDM", "MM", "Methanol", "MethylLinoleate", "MethylLinolenate", "MethylOleate",
+    "MethylPalmitate", "MethylStearate", "N2", "Neon", "Neopentane", "NitrousOxide",
+    "Novec649", "O2", "OrthoDeuterium", "OrthoHydrogen", "ParaDeuterium", "ParaHydrogen",
+    "Propylene", "Propyne", "R11", "R113", "R114", "R115", "R116", "R12", "R123", "R1233zd(E)",
+    "R1234yf", "R1234ze(E)", "R1234ze(Z)", "R124", "R1243zf", "R125", "R13", "R134a",
+    "R13I1", "R14", "R141b", "R142b", "R143a", "R152A", "R161", "R21", "R218", "R22", "R227EA",
+    "R23", "R236EA", "R236FA", "R245ca", "R245fa", "R32", "R365MFC", "R40", "R404A", "R407C",
+    "R41", "R410A", "R507A", "RC318", "SES36", "SulfurDioxide", "SulfurHexafluoride", "Toluene",
+    "Xenon", "cis-2-Butene", "m-Xylene", "n-Butane", "n-Decane", "n-Dodecane", "n-Heptane",
+    "n-Hexane", "n-Nonane", "n-Octane", "n-Pentane", "n-Propane", "n-Undecane", "o-Xylene",
+    "p-Xylene", "trans-2-Butene"
     ],
     key='fluid'
 )
