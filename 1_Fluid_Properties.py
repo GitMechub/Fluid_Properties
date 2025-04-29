@@ -40,7 +40,7 @@ import matplotlib as mpl
 
 ################# SETUP #################
 
-st.title("Fluid Properties v1.0.0", anchor=False)
+st.title("Fluid Properties v1.0.1", anchor=False)
 
 col1, col2 = st.columns([1, 2])
 
@@ -63,23 +63,8 @@ if 'active_page' not in st.session_state:
 fluid = col1.selectbox(
     'Fluid',
     [
-    "1-Butene", "Acetone", "Air", "Ammonia", "Argon", "Benzene", "CH4", "CO", "CO2",
-    "CarbonylSulfide", "CycloHexane", "CycloPropane", "Cyclopentane", "D4", "D5", "D6",
-    "Deuterium", "Dichloroethane", "DiethylEther", "DimethylCarbonate", "DimethylEther",
-    "Ethane", "Ethanol", "EthylBenzene", "Ethylene", "EthyleneOxide", "Fluorine",
-    "H2", "H2O", "HFE143m", "HeavyWater", "Helium", "HydrogenChloride", "HydrogenSulfide",
-    "IsoButane", "IsoButene", "Isohexane", "Isopentane", "Krypton", "MD2M", "MD3M", "MD4M",
-    "MDM", "MM", "Methanol", "MethylLinoleate", "MethylLinolenate", "MethylOleate",
-    "MethylPalmitate", "MethylStearate", "N2", "Neon", "Neopentane", "NitrousOxide",
-    "Novec649", "O2", "OrthoDeuterium", "OrthoHydrogen", "ParaDeuterium", "ParaHydrogen",
-    "Propylene", "Propyne", "R11", "R113", "R114", "R115", "R116", "R12", "R123", "R1233zd(E)",
-    "R1234yf", "R1234ze(E)", "R1234ze(Z)", "R124", "R1243zf", "R125", "R13", "R134a",
-    "R13I1", "R14", "R141b", "R142b", "R143a", "R152A", "R161", "R21", "R218", "R22", "R227EA",
-    "R23", "R236EA", "R236FA", "R245ca", "R245fa", "R32", "R365MFC", "R40", "R404A", "R407C",
-    "R41", "R410A", "R507A", "RC318", "SES36", "SulfurDioxide", "SulfurHexafluoride", "Toluene",
-    "Xenon", "cis-2-Butene", "m-Xylene", "n-Butane", "n-Decane", "n-Dodecane", "n-Heptane",
-    "n-Hexane", "n-Nonane", "n-Octane", "n-Pentane", "n-Propane", "n-Undecane", "o-Xylene",
-    "p-Xylene", "trans-2-Butene"
+        "1-Butene", "Acetone", "Air", "Ammonia", "Argon", "Benzene", "CH4", "CO", "CO2",
+        "CycloHexane", "CycloPropane", "Cyclopentane", "H2", "H2O", "R134a", "R410A", "n-Butane"
     ],
     key='fluid'
 )
@@ -125,7 +110,8 @@ for param in options:
         step=1.0,  # Step must also be float
         key=f'input_{coolprop_params[param]}',
         min_value=0. if param in ['Pressure', 'Mass density', 'Quality'] else None,
-        max_value=1. if param in ['Quality'] else None
+        max_value=1. if param in ['Quality'] else None,
+        help="2e3 = 2*1000 | 2e-3 = 2/1000"
     )
 
     if inputs[param] != st.session_state.get(f'input_{coolprop_params[param]}', None):
@@ -142,13 +128,16 @@ def Fluid_Properties(param_dict, input_list, fluid):
 
         # Lista de parâmetros a calcular
         params = [
-            'P', 'T', 'U', 'H', 'S', 'Q', 'D',
+            'P', 'T', 'U', 'H', 'S', 'Q', 'PHASE', 'D',
             'DMOLAR',  # Molar density in mol/m^3
+            'MOLARMASS',  # Molar mass in kg/mol
             'HMOLAR',  # Molar specific enthalpy in J/mol
             'SMOLAR',  # Molar specific entropy in J/mol/K
             'UMOLAR',  # Molar specific internal energy in J/mol
             'CONDUCTIVITY',  # Thermal conductivity in W/m/K
+            'CPMASS',  # Mass specific constant pressure specific heat in J/kg/K
             'CVMASS',  # Mass specific constant volume specific heat in J/kg/K
+            'CPMOLAR',  # Molar specific constant volume specific heat in J/mol/K
             'CVMOLAR',  # Molar specific constant volume specific heat in J/mol/K
             'V',  # Viscosity in Pa s
             'PRANDTL',  # Prandtl number
@@ -157,9 +146,10 @@ def Fluid_Properties(param_dict, input_list, fluid):
             'GMASS',  # Mass specific Gibbs energy in J/kg
             'GMOLAR',  # Molar specific Gibbs energy in J/mol
             'Z',  # Compressibility Factor
-            'PTRIPLE', # Pressure at the triple point (pure only)
-            'PCRIT', # Pressure at the critical point in kPa
-            'TCRIT' # Temperature at the critical point in K
+            'PTRIPLE',  # Pressure at the triple point (pure only)
+            'TTRIPLE',  # Temperature at the triple point (pure only)
+            'PCRIT',  # Pressure at the critical point in kPa
+            'TCRIT'  # Temperature at the critical point in K
         ]
 
         # Remove os parâmetros que já estão na lista de entrada
@@ -168,11 +158,15 @@ def Fluid_Properties(param_dict, input_list, fluid):
         # Calcula cada parâmetro restante
         for param in params:
             try:
-                param_dict[param] = PropsSI(
-                    param,
-                    input_list[0], param_dict[input_list[0]],
-                    input_list[1], param_dict[input_list[1]], fluid
-                )
+                if param == 'PHASE':
+                    param_dict[param] = PhaseSI(input_list[0], param_dict[input_list[0]], input_list[1],
+                                                param_dict[input_list[1]], fluid)
+                else:
+                    param_dict[param] = PropsSI(
+                        param,
+                        input_list[0], param_dict[input_list[0]],
+                        input_list[1], param_dict[input_list[1]], fluid
+                    )
             except Exception as e:
                 # Apenas exibe uma mensagem de erro se necessário
                 print(f"Error calculating {param}: {e}")
@@ -215,29 +209,37 @@ if len(options) == 2:
 
             # Ajuste das variáveis para exibir no DataFrame
             param_dict_1 = {
-                'Pressure (kPa)': [round(param_dict_0['P'] / 1e3, 2)],
+                'Pressure (kPa)': [round(param_dict_0['P'] / 1e3, 4)],
                 'Temperature (°C)': [round(param_dict_0['T'] - 273.15, 2)],
                 'Internal Energy (J/kg)': [round(param_dict_0['U'], 2)],
                 'Enthalpy (J/kg)': [round(param_dict_0['H'], 2)],
                 'Entropy (J/(kg.K))': [round(param_dict_0['S'], 2)],
                 'Quality': [param_dict_0['Q']],
-                'Mass Density (kg/m³)': [round(param_dict_0['D'], 2)],
+                'Phase': [param_dict_0['PHASE']],
+                'Molar Mass (kg/kmol)': [round(param_dict_0['MOLARMASS'] * 1e3, 3)],
+                'Mass Density (kg/m³)': [round(param_dict_0['D'], 3)],
                 'Molar Density (mol/m³)': [round(param_dict_0['DMOLAR'], 3)],
+                'Specific Volume (m³/kg)': [round(1 / param_dict_0['D'], 4)],
                 'Molar Enthalpy (J/mol)': [round(param_dict_0['HMOLAR'], 2)],
                 'Molar Entropy (J/mol/K)': [round(param_dict_0['SMOLAR'], 2)],
                 'Molar Internal Energy (J/mol)': [round(param_dict_0['UMOLAR'], 2)],
                 'Thermal Conductivity (W/(m.K))': [round(param_dict_0['CONDUCTIVITY'], 6)],
-                'Mass Specific Heat at Constant Volume (J/(kg.K))': [round(param_dict_0['CVMASS'], 2)],
-                'Molar Specific Heat at Constant Volume (J/(mol.K))': [round(param_dict_0['CVMOLAR'], 2)],
+                'Mass Specific Heat at Constant Pressure (J/(kg.K))': [round(param_dict_0['CPMASS'], 3)],
+                'Mass Specific Heat at Constant Volume (J/(kg.K))': [round(param_dict_0['CVMASS'], 3)],
+                'Molar Specific Heat at Constant Pressure (J/(mol.K))': [round(param_dict_0['CPMOLAR'], 3)],
+                'Molar Specific Heat at Constant Volume (J/(mol.K))': [round(param_dict_0['CVMOLAR'], 3)],
                 'Viscosity (Pa.s * 1e3)': [round(param_dict_0['V'] * 1e3, 8)],
                 'Prandtl Number': [round(param_dict_0['PRANDTL'], 3)],
                 'Speed of Sound (m/s)': [round(param_dict_0['A'], 2)],
-                'Molar Gas Constant (J/(mol.K))': [round(param_dict_0['GAS_CONSTANT'], 2)],
+                'Characteristic Gas Constant (J/(kg.K))': [
+                    round(param_dict_0['GAS_CONSTANT'] / param_dict_0['MOLARMASS'], 4)],
+                'Molar Gas Constant (Universal) (J/(mol.K))': [round(param_dict_0['GAS_CONSTANT'], 4)],
                 'Mass Specific Gibbs Energy (J/kg)': [round(param_dict_0['GMASS'], 2)],
                 'Molar Gibbs Energy (J/mol)': [round(param_dict_0['GMOLAR'], 2)],
                 'Compressibility Factor': [round(param_dict_0['Z'], 5)],
-                'Pressure at Triple Point (kPa)': [round(param_dict_0['PTRIPLE'] / 1e3, 2)],
-                'Pressure at Critical Point (kPa)': [round(param_dict_0['PCRIT'] / 1e3, 2)],
+                'Pressure at Triple Point (kPa)': [round(param_dict_0['PTRIPLE'] / 1e3, 4)],
+                'Temperature at Triple Point (°C)': [round(param_dict_0['TTRIPLE'] - 273.15, 2)],
+                'Pressure at Critical Point (kPa)': [round(param_dict_0['PCRIT'] / 1e3, 4)],
                 'Temperature at Critical Point (°C)': [round(param_dict_0['TCRIT'] - 273.15, 2)]
             }
 
