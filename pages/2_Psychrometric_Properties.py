@@ -40,7 +40,7 @@ import matplotlib as mpl
 
 ################# SETUP #################
 
-st.title("Psicrometric Properties", anchor=False)
+st.title("Psycrometric Properties", anchor=False)
 
 col1, col2 = st.columns([1, 2])
 
