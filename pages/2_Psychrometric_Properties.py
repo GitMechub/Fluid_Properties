@@ -10,7 +10,7 @@ my_file = path + '/images/mechub_logo.png'
 img = Image.open(my_file)
 
 st.set_page_config(
-    page_title='Psychrometric Properties',
+    page_title='Psicrometric Properties',
     layout="wide",
     page_icon=img
                    )
@@ -40,7 +40,7 @@ import matplotlib as mpl
 
 ################# SETUP #################
 
-st.title("Psychrometric Properties", anchor=False)
+st.title("Psicrometric Properties", anchor=False)
 
 col1, col2 = st.columns([1, 2])
 
@@ -54,7 +54,7 @@ from CoolProp.CoolProp import PropsSI
 
 # Configurações iniciais da sessão do Streamlit
 if 'active_page' not in st.session_state:
-    st.session_state.active_page = '2_Psychrometric_Properties'
+    st.session_state.active_page = '2_Psicrometric_Properties'
     st.session_state.input_P_p = 101.325
     st.session_state.input_Tdb_p = 30.0
     st.session_state.input_Twb_p = 25.0
@@ -64,9 +64,10 @@ if 'active_page' not in st.session_state:
     st.session_state.input_H_p = 76280.77
     st.session_state.input_V_p = 0.88
 
+
 # Define os valores padrão para os parâmetros psicrométricos
 default_values = {
-    "Pressure": 101.325,  # kPa
+    #"Pressure": 101.325,  # kPa
     "Dry Bulb Temperature": 30.0,  # °C
     "Wet Bulb Temperature": 25.0,  # °C
     "Dew Point Temperature": 23.2,  # °C
@@ -88,15 +89,25 @@ coolprop_params = {
     "Specific Volume": "V"
 }
 
+# Inserir Pressão
+inputs = {}
+inputs['Pressure'] = col1.number_input(
+        label=f"Pressure (kPa)",
+        value=101.325,
+        key='input_P_p',
+        step= 1.0,
+        min_value=0.,
+        help="2e3 = 2*1000 | 2e-3 = 2/1000"
+    )
+
 # Seleção de parâmetros de entrada
 options = col1.multiselect(
-    "Choose 3 input parameters",
+    "Choose 2 input parameters, given the defined Pressure",
     list(default_values.keys()),
-    max_selections=3
+    max_selections=2
 )
 
 # Inputs dinâmicos para os parâmetros selecionados
-inputs = {}
 for param in options:
     inputs[param] = col1.number_input(
         label=f"{param} ({'kPa' if param == 'Pressure' else '°C' if 'Temperature' in param else '%' if param == 'Relative Humidity' else 'g/kg' if param == 'Humidity Ratio' else 'J/kg' if param == 'Enthalpy' else 'm³/kg' if param == 'Specific Volume' else ''})",
@@ -104,10 +115,12 @@ for param in options:
         key=f'input_{coolprop_params[param]}_p',
         step=0.1 if param != "Pressure" else 1.0,
         min_value=0. if param in ['Pressure', 'Specific Volume','Humidity Ratio','Relative Humidity'] else None,
-        max_value=1. if param in ['Relative Humidity'] else None
+        max_value=1. if param in ['Relative Humidity'] else None,
+        help="2e3 = 2*1000 | 2e-3 = 2/1000"
     )
     if inputs[param] != st.session_state.get(f'input_{coolprop_params[param]}_p', None):
         st.session_state[f'input_{coolprop_params[param]}_p'] = inputs[param]
+
 
 ################# FUNCTIONS #################
 
@@ -115,8 +128,10 @@ def Psicrometric_Properties(p_param_dict, input_list_p):
 
   try:
 
-    if len(input_list_p) < 3:
-            raise ValueError("Error: 'input_list' must contain at least 3 variables (e.g., pressure, temperature, relative humidity).")
+    if len(input_list_p) < 2:
+            raise ValueError("Error: Must have at least 2 variables (e.g., temperature, relative humidity).")
+
+    input_list_p = input_list_p + ['P']
 
     # List of parameters to calculate
     params = [
@@ -174,7 +189,7 @@ def Psicrometric_Properties(p_param_dict, input_list_p):
 
 ################# RUNNING #################
 
-if len(options) == 3:
+if len(options) == 2:
     run_button = col1.button("Run", use_container_width=True)
 
     param_dict = {}
