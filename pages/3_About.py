@@ -28,7 +28,7 @@ hide_menu = '''
         '''
 st.markdown(hide_menu, unsafe_allow_html=True)
 
-st.header("Fluid Properties v1.0.0", divider="gray", anchor=False)
+st.header("Fluid Properties v1.0.1", divider="gray", anchor=False)
 
 st.markdown('''
 ## About Fluid Properties:
