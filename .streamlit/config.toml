@@ -1,5 +1,5 @@
 [theme]
-primaryColor="#9B7F5F" # Marrom acobreado/caramelo - para botões e destaques
-backgroundColor="#2C2621" # Marrom escuro quase preto - fundo principal
-secondaryBackgroundColor="#3F372F" # Marrom escuro um pouco mais claro - para painéis secundários/cards
-textColor="#E0DDCF" # Off-white cremoso - para textos
+primaryColor="#9B7F5F"
+backgroundColor="#121212"
+secondaryBackgroundColor="#222222"
+textColor="#F0E6D2"
