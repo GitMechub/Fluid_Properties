@@ -64,7 +64,7 @@ fluid = col1.selectbox(
     'Fluid',
     [
         "1-Butene", "Acetone", "Air", "Ammonia", "Argon", "Benzene", "CH4", "CO", "CO2",
-        "CycloHexane", "CycloPropane", "Cyclopentane", "H2", "H2O", "R134a", "R410A", "n-Butane"
+        "CycloHexane", "CycloPropane", "Cyclopentane", "H2", "H2O", "N2", "N2O", "R134a", "R410A", "n-Butane"
     ],
     key='fluid'
 )
